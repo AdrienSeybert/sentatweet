@@ -24,9 +24,7 @@ score.sent = function(sentences, pos.words, neg.words, .progress='none')
 
       tryTolower = function(x)
       {
-         # create missing value
          y = NA
-         # tryCatch error
          try_error = tryCatch(tolower(x), error=function(e) e)
          if (!inherits(try_error, "error"))
          y = tolower(x)
@@ -47,3 +45,13 @@ score.sent = function(sentences, pos.words, neg.words, .progress='none')
    scores.df = data.frame(text=sentences, score=scores)
    return(scores.df)
 }
+
+candidates = clintontext
+scores = score.sent(candidates, pos, neg, .progress='text')
+scores$candidates = factor(rep(c("Clinton")))
+clintondb$record<-rownames(clintondb)
+scores$record<-rownames(scores)
+shortclinton=merge(scores, clintondb, ID="record")
+write.csv(shortclinton, "fullclinton.csv")
+
+

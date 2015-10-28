@@ -48,7 +48,6 @@ score.sent = function(sentences, pos.words, neg.words, .progress='none')
 
 candidates = clintontext
 scores = score.sent(candidates, pos, neg, .progress='text')
-scores$candidates = factor(rep(c("Clinton")))
 clintondb$record<-rownames(clintondb)
 scores$record<-rownames(scores)
 shortclinton=merge(scores, clintondb, ID="record")

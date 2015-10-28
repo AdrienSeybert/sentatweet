@@ -1,0 +1,49 @@
+
+clintonben<-searchTwitter("Clinton", n=5000, since="2015-10-22", until="2015-10-24", lang="en")
+clintonben<-searchTwitter("Clinton", resultType="popular", since="2015-10-22", until="2015-10-24", lang="en")
+
+clintondb<- do.call("rbind", lapply(clintonben, as.data.frame))
+clintontext= sapply(clintonben, function(x) x$getText())
+
+library(twitteR)
+ library(ROAuth)
+ library(plyr)
+ library(dplyr)
+ library(stringr)
+ library(ggplot2)
+
+score.sent = function(sentences, pos.words, neg.words, .progress='none')
+{
+
+   scores = laply(sentences,
+   function(sentence, pos.words, neg.words)
+   {
+      sentence = gsub("[[:punct:]]", "", sentence)
+      sentence = gsub("[[:cntrl:]]", "", sentence)
+      sentence = gsub('\\d+', '', sentence)
+
+      tryTolower = function(x)
+      {
+         # create missing value
+         y = NA
+         # tryCatch error
+         try_error = tryCatch(tolower(x), error=function(e) e)
+         if (!inherits(try_error, "error"))
+         y = tolower(x)
+         return(y)
+      }
+      
+      sentence = sapply(sentence, tryTolower)
+      word.list = str_split(sentence, "\\s+")
+      words = unlist(word.list)
+      pos.matches = match(words, pos.words)
+      neg.matches = match(words, neg.words)
+      pos.matches = !is.na(pos.matches)
+      neg.matches = !is.na(neg.matches)
+      score = sum(pos.matches) - sum(neg.matches)
+      return(score)
+      }, pos.words, neg.words, .progress=.progress )
+
+   scores.df = data.frame(text=sentences, score=scores)
+   return(scores.df)
+}
